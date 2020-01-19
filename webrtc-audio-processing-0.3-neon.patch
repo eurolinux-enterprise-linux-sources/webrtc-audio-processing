@@ -1,0 +1,54 @@
+diff -up webrtc-audio-processing-0.3/configure.ac.neon webrtc-audio-processing-0.3/configure.ac
+--- webrtc-audio-processing-0.3/configure.ac.neon	2016-06-22 01:46:41.000000000 -0500
++++ webrtc-audio-processing-0.3/configure.ac	2016-07-18 08:01:43.541116030 -0500
+@@ -98,7 +98,7 @@ AS_IF([test "x$enable_neon" != "xno"],
+         ],
+         [
+          HAVE_NEON=1
+-         ARCH_CFLAGS="$ARCH_CFLAGS -DWEBRTC_DETECT_NEON -mfpu=neon"
++         ARCH_CFLAGS="$ARCH_CFLAGS -DWEBRTC_DETECT_NEON"
+         ])
+ )
+ AM_CONDITIONAL([HAVE_NEON], [test "x$HAVE_NEON" = "x1"])
+diff -up webrtc-audio-processing-0.3/webrtc/common_audio/Makefile.am.neon webrtc-audio-processing-0.3/webrtc/common_audio/Makefile.am
+--- webrtc-audio-processing-0.3/webrtc/common_audio/Makefile.am.neon	2016-06-21 06:16:05.000000000 -0500
++++ webrtc-audio-processing-0.3/webrtc/common_audio/Makefile.am	2016-07-18 07:40:02.128151244 -0500
+@@ -118,13 +118,18 @@ libcommon_audio_la_SOURCES += \
+ endif
+ 
+ if HAVE_NEON
+-libcommon_audio_la_SOURCES += \
++noinst_LTLIBRARIES += libcommon_audio_neon.la
++libcommon_audio_neon_la_SOURCES = \
+ 			     resampler/sinc_resampler_neon.cc \
+ 			     signal_processing/cross_correlation_neon.c \
+ 			     signal_processing/downsample_fast_neon.c \
+ 			     signal_processing/min_max_operations_neon.c \
+ 			     fir_filter_neon.cc \
+ 			     fir_filter_neon.h
++
++libcommon_audio_neon_la_CFLAGS = -mfpu=neon $(AM_CFLAGS) $(COMMON_CFLAGS) -mfpu=neon
++libcommon_audio_neon_la_CXXFLAGS = -mfpu=neon $(AM_CXXFLAGS) $(COMMON_CXXFLAGS) -mfpu=neon
++libcommon_audio_neon_la_LDFLAGS = $(AM_LDFLAGS)
+ endif
+ 
+ if !HAVE_ARM
+diff -up webrtc-audio-processing-0.3/webrtc/modules/audio_processing/Makefile.am.neon webrtc-audio-processing-0.3/webrtc/modules/audio_processing/Makefile.am
+--- webrtc-audio-processing-0.3/webrtc/modules/audio_processing/Makefile.am.neon	2016-06-21 06:15:34.000000000 -0500
++++ webrtc-audio-processing-0.3/webrtc/modules/audio_processing/Makefile.am	2016-07-18 07:40:02.128151244 -0500
+@@ -158,10 +158,15 @@ libwebrtc_audio_processing_privatearch_l
+ endif
+ 
+ if HAVE_NEON
++noinst_LTLIBRARIES = libwebrtc_audio_processing_privatearch.la
++LIBWEBRTC_PRIVATEARCH=libwebrtc_audio_processing_privatearch.la
+ libwebrtc_audio_processing_la_SOURCES += \
+ 					aec/aec_core_neon.c \
+ 					aec/aec_rdft_neon.c \
+ 					aecm/aecm_core_neon.c
++libwebrtc_audio_processing_privatearch_la_CFLAGS = -mfpu=neon $(AM_CFLAGS) $(COMMON_CFLAGS) -mfpu=neon
++libwebrtc_audio_processing_privatearch_la_CXXFLAGS = -mfpu=neon $(AM_CXXFLAGS) $(COMMON_CXXFLAGS) -mfpu-neon
++libwebrtc_audio_processing_privatearch_la_LDFLAGS = $(AM_LDFLAGS)
+ endif
+ 
+ libwebrtc_audio_processing_la_CFLAGS = $(AM_CFLAGS) $(COMMON_CFLAGS)
