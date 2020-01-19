@@ -1,14 +1,12 @@
-
 Name:           webrtc-audio-processing
 Version:        0.1
-Release:        3%{?dist}
+Release:        5%{?dist}
 Summary:        Library for echo cancellation
 
 License:        BSD
 URL:            http://www.freedesktop.org/software/pulseaudio/webrtc-audio-processing/
 Source0:        http://freedesktop.org/software/pulseaudio/webrtc-audio-processing/%{name}-%{version}.tar.xz
-
-ExclusiveArch: %{ix86} x86_64 %{arm}
+Patch0:         webrtc-fix-typedefs-on-other-arches.patch
 
 %description
 %{name} is a library derived from Google WebRTC project that 
@@ -26,6 +24,7 @@ files for developing applications that use %{name}.
 
 %prep
 %setup -q
+%patch0 -p1 -b .typedef
 
 %build
 %configure                                                              \
@@ -58,6 +57,13 @@ find $RPM_BUILD_ROOT -name '*.la' -exec rm -f {} ';'
 
 
 %changelog
+* Wed Feb 26 2014 Debarshi Ray <rishi@fedoraproject.org> - 0.1-5
+- Fix FTBFS on non-x86/arm
+  Resolves: #1068823
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.1-4
+- Mass rebuild 2013-12-27
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
